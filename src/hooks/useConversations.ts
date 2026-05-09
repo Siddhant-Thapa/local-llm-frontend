@@ -43,7 +43,7 @@ export function useConversations() {
       await deleteConversation(id);
       setConversations((prev) => prev.filter((c) => c.id !== id));
       if (activeId === id) {
-        setActiveId((prev) => {
+        setActiveId(() => {
           const remaining = conversations.filter((c) => c.id !== id);
           return remaining.length > 0 ? remaining[0].id : null;
         });
