@@ -4,6 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { getMessages, streamChat } from "../api/chat";
 import type { Message, StreamStatus } from "../types";
 
+// crypto.randomUUID() requires HTTPS — this works on plain HTTP too
+function generateId(): string {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+  });
+}
+
 export function useChatStream(conversationId: string | null) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [status, setStatus] = useState<StreamStatus>("idle");
@@ -42,9 +50,8 @@ export function useChatStream(conversationId: string | null) {
     async (content: string) => {
       if (!conversationId || status === "streaming") return;
 
-      // Optimistically append the user message
       const optimisticUser: Message = {
-        id: crypto.randomUUID(),
+        id: generateId(),
         conversationId,
         role: "user",
         content,
@@ -55,8 +62,7 @@ export function useChatStream(conversationId: string | null) {
       setStatus("streaming");
       setError(null);
 
-      // Placeholder assistant message that grows token by token
-      const assistantId = crypto.randomUUID();
+      const assistantId = generateId();
       const placeholder: Message = {
         id: assistantId,
         conversationId,
