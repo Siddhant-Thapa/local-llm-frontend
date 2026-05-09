@@ -1,4 +1,4 @@
-/** Sidebar — lists conversations, highlights the active one, has a "New chat" button. */
+/** Dark sidebar — conversation list + new chat button. */
 
 import type { Conversation } from "../types";
 
@@ -12,65 +12,30 @@ interface SidebarProps {
 
 export function Sidebar({ conversations, activeId, onNew, onSelect, onDelete }: SidebarProps) {
   return (
-    <aside
-      style={{
-        width: "260px",
-        borderRight: "1px solid #e0e0e0",
-        display: "flex",
-        flexDirection: "column",
-        background: "#fafafa",
-      }}
-    >
-      <div style={{ padding: "12px" }}>
-        <button
-          onClick={onNew}
-          style={{
-            width: "100%",
-            padding: "8px",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            background: "#fff",
-            cursor: "pointer",
-            fontSize: "0.95rem",
-          }}
-        >
-          + New chat
+    <aside className="sidebar">
+      <div className="sidebar-header">
+        <div className="sidebar-title">Chats</div>
+        <button className="new-chat-btn" onClick={onNew}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          New chat
         </button>
       </div>
 
-      <ul style={{ listStyle: "none", margin: 0, padding: 0, overflowY: "auto", flex: 1 }}>
+      <ul className="conv-list">
         {conversations.map((conv) => (
           <li
             key={conv.id}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "8px 12px",
-              cursor: "pointer",
-              background: conv.id === activeId ? "#e8f0fe" : "transparent",
-              fontWeight: conv.id === activeId ? 600 : 400,
-              borderLeft: conv.id === activeId ? "3px solid #0070f3" : "3px solid transparent",
-            }}
+            className={`conv-item${conv.id === activeId ? " active" : ""}`}
             onClick={() => onSelect(conv.id)}
           >
-            <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {conv.title}
-            </span>
+            <span title={conv.title}>{conv.title}</span>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(conv.id);
-              }}
-              title="Delete conversation"
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: "#999",
-                fontSize: "1rem",
-                padding: "0 4px",
-                lineHeight: 1,
-              }}
+              className="conv-delete"
+              title="Delete"
+              onClick={(e) => { e.stopPropagation(); onDelete(conv.id); }}
             >
               ×
             </button>

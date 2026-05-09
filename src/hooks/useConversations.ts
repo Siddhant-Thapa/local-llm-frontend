@@ -12,6 +12,12 @@ export function useConversations() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  const refresh = useCallback(() => {
+    getConversations()
+      .then((list) => setConversations(list))
+      .catch((err: unknown) => console.error("Failed to refresh conversations", err));
+  }, []);
+
   useEffect(() => {
     getConversations()
       .then((list) => {
@@ -50,5 +56,5 @@ export function useConversations() {
     setActiveId(id);
   }, []);
 
-  return { conversations, activeId, createNew, remove, setActive };
+  return { conversations, activeId, createNew, remove, setActive, refresh };
 }

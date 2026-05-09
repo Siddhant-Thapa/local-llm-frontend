@@ -1,6 +1,6 @@
-/** Controlled textarea — submits on Enter, Shift+Enter inserts a newline. */
+/** Auto-growing textarea — Enter sends, Shift+Enter adds a newline. */
 
-import { type KeyboardEvent, useCallback, useState } from "react";
+import { type KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 
 interface ChatInputProps {
   onSend: (content: string) => void;
@@ -9,6 +9,15 @@ interface ChatInputProps {
 
 export function ChatInput({ onSend, disabled }: ChatInputProps) {
   const [value, setValue] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-grow the textarea height as content grows
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
+  }, [value]);
 
   const submit = useCallback(() => {
     const trimmed = value.trim();
@@ -28,49 +37,31 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
   );
 
   return (
-    <div
-      style={{
-        padding: "12px 16px",
-        borderTop: "1px solid #e0e0e0",
-        display: "flex",
-        gap: "8px",
-        alignItems: "flex-end",
-      }}
-    >
-      <textarea
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        disabled={disabled}
-        placeholder={disabled ? "Waiting…" : "Type a message (Enter to send)"}
-        rows={3}
-        style={{
-          flex: 1,
-          resize: "none",
-          borderRadius: "8px",
-          border: "1px solid #ccc",
-          padding: "8px 12px",
-          fontSize: "1rem",
-          fontFamily: "inherit",
-          outline: "none",
-        }}
-      />
-      <button
-        onClick={submit}
-        disabled={disabled || !value.trim()}
-        style={{
-          padding: "8px 18px",
-          borderRadius: "8px",
-          border: "none",
-          background: "#0070f3",
-          color: "#fff",
-          fontSize: "1rem",
-          cursor: disabled ? "not-allowed" : "pointer",
-          opacity: disabled ? 0.6 : 1,
-        }}
-      >
-        Send
-      </button>
+    <div className="input-area">
+      <div className="input-wrap">
+        <textarea
+          ref={textareaRef}
+          className="input-textarea"
+          rows={1}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          disabled={disabled}
+          placeholder={disabled ? "Waiting for response…" : "Message TinyLlama…"}
+        />
+        <button
+          className="send-btn"
+          onClick={submit}
+          disabled={disabled || !value.trim()}
+          title="Send message"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5" />
+            <polyline points="5 12 12 5 19 12" />
+          </svg>
+        </button>
+      </div>
+      <div className="input-hint">Enter to send · Shift+Enter for new line</div>
     </div>
   );
 }
